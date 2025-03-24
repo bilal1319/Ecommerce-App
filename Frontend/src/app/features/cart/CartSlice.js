@@ -14,7 +14,6 @@ export const updateCartItem = createAsyncThunk("cart/updateCartItem", async ({ p
     
     return data.cartItems;
   } catch (error) {
-    console.log("Update", error);
     
     return rejectWithValue(error.response?.data?.message || "Failed to update cart item");
   }

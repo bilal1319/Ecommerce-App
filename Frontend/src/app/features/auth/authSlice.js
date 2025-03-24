@@ -44,6 +44,10 @@ export const login = createAsyncThunk(
     }
   );
 
+  
+
+
+
   export const checkAuth = createAsyncThunk(
     "auth/checkAuth",
     async ({ navigate }, { rejectWithValue }) => {
@@ -58,13 +62,15 @@ export const login = createAsyncThunk(
     }
   );
 
+
 const initialState = {
   loading: false,
   isCheckingAuth:false,
   authUser: null,
   error: null,
   authError: null,
-  previousPage: "/"
+  previousPage: "/",
+  signupError: null
 };
 
 const authSlice = createSlice({
@@ -92,7 +98,7 @@ const authSlice = createSlice({
     builder
       .addCase(signup.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.signupError = null;
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
@@ -101,7 +107,7 @@ const authSlice = createSlice({
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.signupError = action.payload;
       })
       .addCase(login.pending, (state) => {
         state.loading = true;

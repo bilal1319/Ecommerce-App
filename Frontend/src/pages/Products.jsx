@@ -148,7 +148,7 @@ export const Products = () => {
         {productLoading ? (
           <p className="text-center text-gray-400">Loading products...</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-[1600px] gap-8 p-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-8 p-8">
             {products.map((product) => (
               <div
                 key={product._id}
@@ -166,7 +166,7 @@ export const Products = () => {
                   {product.description}
                 </p>
                 <p className="text-purple-400 font-bold text-xl">
-                  ${product.price}
+                  Rs. {product.price}/-
                 </p>
 
                 <div className="mt-5">

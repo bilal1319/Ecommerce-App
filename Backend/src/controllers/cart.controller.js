@@ -49,34 +49,43 @@ export const addToCart = async (req, res) => {
 export const updateCartItem = async (req, res) => {
   console.log(req.body);
   console.log("Received productId:", req.params.productId);
-  
+
   const { productId } = req.params;
-  const { quantity } = req.body; // This will be 1 or -1
+  const { quantity } = req.body;
 
   try {
+    // Find the cart and the item
     const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
 
     const item = cart.cartItems.find(item => item._id.toString() === productId);
-    if (!item) return res.status(404).json({ message: 'Product not in cart' });
+    if (!item) return res.status(404).json({ message: "Product not in cart" });
 
-    item.quantity += quantity; // Increment or decrement
-
-    // Ensure quantity does not go below 1
-    if (item.quantity < 1) {
-      cart.cartItems = cart.cartItems.filter(item => item.product.toString() !== productId);
+    // If quantity becomes 0, remove the item
+    if (item.quantity + quantity <= 0) {
+      await Cart.findOneAndUpdate(
+        { user: req.user._id },
+        { $pull: { cartItems: { _id: productId } } },
+        { new: true }
+      ).populate("cartItems.product");
+    } else {
+      // Otherwise, update quantity
+      await Cart.findOneAndUpdate(
+        { user: req.user._id, "cartItems._id": productId },
+        { $inc: { "cartItems.$.quantity": quantity } },
+        { new: true }
+      );
     }
 
-    await cart.save();
-
-    const updatedCart = await Cart.findOne({ user: req.user._id }).populate('cartItems.product'); // Ensure full cart data is returned
+    const updatedCart = await Cart.findOne({ user: req.user._id }).populate("cartItems.product");
     res.status(200).json(updatedCart);
   } catch (error) {
-    console.log(error);
-    
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 
 // Remove Product from Cart

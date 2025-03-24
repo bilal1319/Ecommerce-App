@@ -53,7 +53,7 @@ export const Categories = () => {
   };
 
   return (
-    <div>
+    <div className=" pb-3">
       <h1 className="text-3xl font-semibold text-start mb-6 text-gray-200">
         <u>Manage Categories</u>
       </h1>

@@ -8,7 +8,7 @@ import { Loader } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./app/features/auth/authSlice";
-import { AdminDash } from "./pages/AdminDash";
+import { AdminProducts } from "./pages/AdminProducts";
 import { useNavigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthWrapper } from "./components/AuthWrapper";
@@ -24,6 +24,21 @@ import Orders from "./pages/Orders";
 import { ToastContainer } from "react-toastify";
 import PlaceOrder from "./pages/PlaceOrder";
 import AdminOrders from "./pages/AdminOrders";
+
+
+const NotFound = () => {
+
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl font-bold mb-4">404</h1>
+      <p className="text-xl mb-6">Page Not Found</p>
+      <p className="text-gray-400 mb-8 text-center max-w-md">
+        The page you are looking for doesn't exist or has been moved.
+      </p>
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -92,7 +107,7 @@ function AppContent() {
   {/* Admin Protected Routes */}
   <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
     <Route element={<Layout />}>
-      <Route path="/allProducts" element={<AdminDash />} />
+      <Route path="/allProducts" element={<AdminProducts />} />
       <Route path="/create-product" element={<CreateProduct />} />
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/categories" element={<Categories />} />
@@ -103,6 +118,9 @@ function AppContent() {
 
   {/* Unauthorized Page */}
   <Route path="/unauthorized" element={<Unauthorized />} />
+
+   {/* 404 Fallback Route - Must be last */}
+   <Route path="*" element={<NotFound />} />
 </Routes>
 
     </>

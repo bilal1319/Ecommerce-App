@@ -7,6 +7,7 @@ import {
   createOrder,
   updateOrderStatus,
   deleteOrder,
+  sendOrderConfirmationEmail
 } from '../controllers/order.controller.js';
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get('/user-orders', getUserOrders);
 
 // Create a new order
 router.post('/create', createOrder);
+router.post('/send-confirmation-email', sendOrderConfirmationEmail);
 
 // Admin-only routes
 router.use(isAdmin);

@@ -51,7 +51,6 @@ const Orders = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/order/user-orders");
-        console.log(response);
 
         setOrders(response.data);
       } catch (err) {
@@ -120,17 +119,17 @@ const Orders = () => {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => {
-              const isExpanded = expandedOrderId === order._id;
+              const isExpanded = expandedOrderId === order?._id;
 
               return (
                 <div
-                  key={order._id}
+                  key={order?._id}
                   className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden"
                 >
                   {/* Order Header */}
                   <div
                     className="bg-gray-800 p-4 cursor-pointer transition-colors hover:bg-gray-750"
-                    onClick={() => toggleOrderDetails(order._id)}
+                    onClick={() => toggleOrderDetails(order?._id)}
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between">
                       <div className="flex items-center space-x-4">
@@ -139,18 +138,18 @@ const Orders = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">
-                            Order #{order._id.slice(-8)}
+                            Order #{order?._id?.slice(-8)}
                           </p>
                           <p className="text-sm">
-                            {formatDate(order.createdAt)}
+                            {formatDate(order?.createdAt)}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center space-x-4 mt-2 md:mt-0">
-                        <OrderStatusBadge status={order.status} />
+                        <OrderStatusBadge status={order?.status} />
                         <span className="font-bold">
-                          ${order.totalPrice.toFixed(2)}
+                          ${order?.totalPrice?.toFixed(2)}
                         </span>
                         <span className="transition-transform duration-300 ease-in-out">
                           {isExpanded ? (
@@ -170,7 +169,7 @@ const Orders = () => {
                         ? "max-h-[9999px] opacity-100"
                         : "max-h-0 opacity-0"
                     }`}
-                    ref={(el) => (detailsRefs.current[order._id] = el)}
+                    ref={(el) => (detailsRefs.current[order?._id] = el)}
                   >
                     <div className="p-4">
                       {/* Shipping Info */}
@@ -181,31 +180,31 @@ const Orders = () => {
                         <div className="bg-gray-700 p-3 rounded-md text-sm">
                           <p className="mb-1">
                             <strong>Name:</strong>{" "}
-                            {order.shippingAddress?.fullName}
+                            {order?.shippingAddress?.fullName}
                           </p>
                           <p className="mb-1">
                             <strong>Address:</strong>{" "}
-                            {order.shippingAddress?.addressLine1}
+                            {order?.shippingAddress?.addressLine1}
                           </p>
-                          {order.shippingAddress?.addressLine2 && (
+                          {order?.shippingAddress?.addressLine2 && (
                             <p className="mb-1">
-                              {order.shippingAddress.addressLine2}
+                              {order?.shippingAddress?.addressLine2}
                             </p>
                           )}
                           <p className="mb-1">
-                            <strong>City:</strong>{" "} {order.shippingAddress?.city}
+                            <strong>City:</strong>{" "} {order?.shippingAddress?.city}
                             </p>
                             <p>
-                            <strong>State:</strong>{" "}{order.shippingAddress?.state}
+                            <strong>State:</strong>{" "}{order?.shippingAddress?.state}
                             </p>
                             <p>
                             <strong>Zip:</strong>{" "}
-                            {order.shippingAddress?.zipCode}
+                            {order?.shippingAddress?.zipCode}
                             </p>
                           
                           <p>
                             <strong>Phone:</strong>{" "}
-                            {order.shippingAddress?.phone}
+                            {order?.shippingAddress?.phone}
                           </p>
                         </div>
                       </div>
@@ -215,17 +214,17 @@ const Orders = () => {
                         Order Items
                       </h3>
                       <div className="space-y-2 mb-4">
-                        {order.items.map((item, index) => (
+                        {order?.items?.map((item, index) => (
                           <div
                             key={index}
                             className="bg-gray-700/50 p-3 rounded-md flex justify-between"
                           >
                             <div className="flex items-center">
                               <div className="w-12 h-12 bg-gray-600 rounded-md flex items-center justify-center mr-3">
-                                {item.productId.image ? (
+                                {item?.productId?.image ? (
                                   <img
-                                    src={item.productId.image}
-                                    alt={item.productId.name}
+                                    src={item?.productId?.image}
+                                    alt={item?.productId?.name}
                                     className="w-full h-full object-cover rounded-md"
                                   />
                                 ) : (
@@ -237,17 +236,17 @@ const Orders = () => {
                               </div>
                               <div>
                                 <p className="font-medium">
-                                  {item.productId.name}
+                                  {item?.productId?.name}
                                 </p>
                                 <p className="text-xs text-gray-400">
-                                  Qty: {item.quantity}
+                                  Qty: {item?.quantity}
                                 </p>
                               </div>
                             </div>
                             <div className="text-right">
                               <p>
                                 $
-                                {(item.productId.price * item.quantity).toFixed(
+                                {(item?.productId?.price * item?.quantity)?.toFixed(
                                   2
                                 )}
                               </p>
@@ -260,7 +259,7 @@ const Orders = () => {
                       <div className="bg-gray-700/30 rounded-md p-3">
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-gray-400">Subtotal:</span>
-                          <span>${(order.totalPrice - 5.99).toFixed(2)}</span>
+                          <span>${(order?.totalPrice - 5.99)?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-gray-400">Shipping:</span>
@@ -268,7 +267,7 @@ const Orders = () => {
                         </div>
                         <div className="flex justify-between font-bold pt-2 mt-2 border-t border-gray-600">
                           <span>Total:</span>
-                          <span>${order.totalPrice.toFixed(2)}</span>
+                          <span>${order?.totalPrice?.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { axiosInstance } from "../lib/axios";
 import { format } from "date-fns";
+import toast from "react-hot-toast";
 import {
   Package,
   ChevronDown,
@@ -125,9 +126,11 @@ const AdminOrders = () => {
     if (!orderToDelete) return;
     try {
       const res = await axiosInstance.delete(`/order/delete/${orderToDelete}`);
+      toast.success("Order deleted successfully");
       setOrders(res.data?.orders);
     } catch (error) {
       console.log(error);
+      toast.error("Failed to delete order. Please try again.");
     } finally {
       setShowConfirmModal(false);
       setOrderToDelete(null);
@@ -169,7 +172,7 @@ const AdminOrders = () => {
     });
 
   return (
-    <div className="bg-[--background-color] text-white">
+    <div className="bg-[--background-color] text-white pb-3">
       <div className="container mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-purple-400">All Orders</h1>

@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../app/features/auth/authSlice";
 
 export const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   
   const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { signupError } = useSelector(state => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,8 +53,8 @@ export const Signup = () => {
           Create Account
         </h2>
 
-        {error && (
-          <p className="text-red-400 text-lg my-2 text-center">{error}</p>
+        {signupError && (
+          <p className="text-red-400 text-lg my-2 text-center">{signupError}</p>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">

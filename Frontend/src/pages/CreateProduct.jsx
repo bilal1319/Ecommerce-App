@@ -47,7 +47,7 @@ export const CreateProduct = () => {
     dispatch(createProduct({ formData, productData }))
       .unwrap()
       .then(() => {
-        navigate("/admin-dash"); 
+        navigate("/allProducts"); 
       })
       .catch(() => {
         toast.error("Product not created");
@@ -57,7 +57,7 @@ export const CreateProduct = () => {
   
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-3">
       <div className="h-full max-w-2xl bg-gray-700 text-gray-200 p-6 rounded-lg shadow-md ">
         <h2 className="text-2xl font-semibold mb-4">Create Product</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
