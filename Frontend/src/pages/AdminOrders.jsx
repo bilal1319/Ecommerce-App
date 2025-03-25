@@ -94,7 +94,7 @@ const AdminOrders = () => {
     if (e) {
       e.stopPropagation();
     }
-    
+
     try {
       await axiosInstance.put(`/order/update-status/${orderId}`, {
         status: newStatus,
@@ -117,7 +117,7 @@ const AdminOrders = () => {
     if (e) {
       e.stopPropagation();
     }
-    
+
     setOrderToDelete(orderId);
     setShowConfirmModal(true);
   };
@@ -180,8 +180,9 @@ const AdminOrders = () => {
 
         {/* Filters and Search */}
         <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <div className="flex-1 relative">
+          <div className="flex flex-col space-y-4">
+            {/* Search Input - Full Width on Mobile */}
+            <div className="relative w-full">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -195,8 +196,10 @@ const AdminOrders = () => {
               />
             </div>
 
-            <div className="flex gap-4">
-              <div className="relative">
+            {/* Filters and Sort - Stacked on Mobile, Flex on Desktop */}
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Status Filter - Full Width on Mobile */}
+              <div className="relative w-full md:w-auto">
                 <Filter
                   size={16}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -204,7 +207,7 @@ const AdminOrders = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-gray-700 text-white pl-10 pr-8 py-2 rounded-md border border-gray-600 focus:border-purple-500 focus:outline-none appearance-none"
+                  className="w-full md:w-auto bg-gray-700 text-white pl-10 pr-8 py-2 rounded-md border border-gray-600 focus:border-purple-500 focus:outline-none appearance-none"
                 >
                   <option value="All">All Statuses</option>
                   <option value="Pending">Pending</option>
@@ -213,10 +216,11 @@ const AdminOrders = () => {
                 </select>
               </div>
 
+              {/* Sort Select - Full Width on Mobile */}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-gray-700 text-white px-4 py-2 rounded-md border border-gray-600 focus:border-purple-500 focus:outline-none"
+                className="w-full md:w-auto bg-gray-700 text-white px-4 py-2 rounded-md border border-gray-600 focus:border-purple-500 focus:outline-none"
               >
                 <option value="date-desc">Newest First</option>
                 <option value="date-asc">Oldest First</option>
@@ -267,7 +271,10 @@ const AdminOrders = () => {
                                 Order #{order._id.slice(-8)}
                               </p>
                               <div className="flex items-center text-sm">
-                                <User size={14} className="mr-1 text-gray-500" />
+                                <User
+                                  size={14}
+                                  className="mr-1 text-gray-500"
+                                />
                                 {order.userId?.email || "Unknown User"}
                               </div>
                               <p className="text-sm">
@@ -283,9 +290,15 @@ const AdminOrders = () => {
                             </span>
                             <span className="transition-transform duration-300 ease-in-out">
                               {isExpanded ? (
-                                <ChevronUp size={20} className="text-gray-400" />
+                                <ChevronUp
+                                  size={20}
+                                  className="text-gray-400"
+                                />
                               ) : (
-                                <ChevronDown size={20} className="text-gray-400" />
+                                <ChevronDown
+                                  size={20}
+                                  className="text-gray-400"
+                                />
                               )}
                             </span>
                           </div>
@@ -312,7 +325,9 @@ const AdminOrders = () => {
                                 Name: {order.shippingAddress?.fullName || "N/A"}
                               </p>
                               <p>Email: {order.userId?.email || "N/A"}</p>
-                              <p>Phone: {order.shippingAddress?.phone || "N/A"}</p>
+                              <p>
+                                Phone: {order.shippingAddress?.phone || "N/A"}
+                              </p>
                               <p>User ID: {order.userId?._id || "N/A"}</p>
                             </div>
                           </div>
@@ -323,7 +338,9 @@ const AdminOrders = () => {
                               Shipping Address
                             </h3>
                             <div className="bg-gray-700/50 p-3 rounded-md text-sm">
-                              <p>{order.shippingAddress?.addressLine1 || "N/A"}</p>
+                              <p>
+                                {order.shippingAddress?.addressLine1 || "N/A"}
+                              </p>
                               {order.shippingAddress?.addressLine2 && (
                                 <p>{order.shippingAddress.addressLine2}</p>
                               )}
@@ -332,7 +349,8 @@ const AdminOrders = () => {
                                 State : {order.shippingAddress?.state || "N/A"}{" "}
                               </p>
                               <p>
-                                Zip Code : {order.shippingAddress?.zipCode || "N/A"}
+                                Zip Code :{" "}
+                                {order.shippingAddress?.zipCode || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -393,7 +411,9 @@ const AdminOrders = () => {
                           <div className="bg-gray-700/30 rounded-md p-3">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-gray-400">Subtotal:</span>
-                              <span>${(order.totalPrice - 5.99)?.toFixed(2)}</span>
+                              <span>
+                                ${(order.totalPrice - 5.99)?.toFixed(2)}
+                              </span>
                             </div>
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-gray-400">Shipping:</span>
@@ -412,7 +432,9 @@ const AdminOrders = () => {
                             </h3>
                             <div className="flex flex-wrap gap-2">
                               <button
-                                onClick={(e) => updateOrderStatus(order._id, "Pending", e)}
+                                onClick={(e) =>
+                                  updateOrderStatus(order._id, "Pending", e)
+                                }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Pending"
                                     ? "bg-yellow-500/20 text-yellow-300 border border-yellow-600"
@@ -423,7 +445,9 @@ const AdminOrders = () => {
                               </button>
 
                               <button
-                                onClick={(e) => updateOrderStatus(order._id, "Shipped", e)}
+                                onClick={(e) =>
+                                  updateOrderStatus(order._id, "Shipped", e)
+                                }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Shipped"
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-600"
@@ -434,14 +458,17 @@ const AdminOrders = () => {
                               </button>
 
                               <button
-                                onClick={(e) => updateOrderStatus(order._id, "Delivered", e)}
+                                onClick={(e) =>
+                                  updateOrderStatus(order._id, "Delivered", e)
+                                }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Delivered"
                                     ? "bg-green-500/20 text-green-300 border border-green-600"
                                     : "bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600"
                                 }`}
                               >
-                                <CheckCircle size={14} className="mr-1" /> Delivered
+                                <CheckCircle size={14} className="mr-1" />{" "}
+                                Delivered
                               </button>
                             </div>
                           </div>
