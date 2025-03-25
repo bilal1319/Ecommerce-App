@@ -10,28 +10,33 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 
-
-
 const app = express();
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173", 
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: [
+    process.env.CLIENT_URL || "http://localhost:5173",
+    "https://ecommerce-app-48d1.onrender.com/", // Add your specific Render URL
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'Accept', 'Origin'],
   credentials: true,
-}));
+  optionsSuccessStatus: 200
+};
 
+app.use(cors(corsOptions));
 
+// Preflight request handler
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: "20mb" })); 
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
 
-
-
 dotenv.config();
 connectDB()
 const PORT = process.env.PORT || 3000;
 const __dirname = path.resolve();
-
 
 app.use('/api/auth', authRoutes)
 app.use('/api/product', productRoutes)
@@ -48,5 +53,4 @@ if(process.env.NODE_ENV === 'production') {
 
 app.listen(PORT,  () => {
     console.log("Server is running on port " + PORT);
-    
 } )
