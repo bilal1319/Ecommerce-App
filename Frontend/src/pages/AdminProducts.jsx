@@ -52,7 +52,7 @@ export const AdminProducts = () => {
   };
 
   return (
-    <div className="relative pb-2">
+    <div className="relative pb-5">
       <div className="w-full flex justify-between items-center"></div>
 
       <div className="relative w-[170px] md:w-[250px] text-white">
