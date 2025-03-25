@@ -16,7 +16,8 @@ const app = express();
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL || "http://localhost:5173",
-    "https://ecommerce-app-48d1.onrender.com/", // Add your specific Render URL
+    "https://ecommerce-app-48d1.onrender.com", // Your Render frontend URL
+    "https://ecommerce-app-production-45fd.up.railway.app" // Your Railway backend's own URL (for safety)
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'Accept', 'Origin'],
