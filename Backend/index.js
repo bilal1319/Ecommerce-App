@@ -8,6 +8,7 @@ import orderRoutes from './src/routes/order.route.js'
 import connectDB from './src/config/db.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
 
 
 
@@ -32,11 +33,9 @@ app.get('/', (req, res) => {
 
 dotenv.config();
 connectDB()
+const PORT = process.env.PORT;
+const __dirname = path.resolve();
 
-// app.use((req, res, next) => {
-//   console.log(`[${req.method}] ${req.url}`, req.body);
-//   next();
-// });
 
 app.use('/api/auth', authRoutes)
 app.use('/api/product', productRoutes)
@@ -44,7 +43,14 @@ app.use('/api/cart', cartRoutes)
 app.use('/api/category', categoryRoutes);
 app.use('/api/order', orderRoutes);
 
-app.listen(3000, 'localhost', () => {
-    console.log("Server is running on port 3000");
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../Frontend/dist')));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../Frontend', 'dist', 'index.html'))
+    })
+  }
+
+app.listen(PORT, 'localhost', () => {
+    console.log("Server is running on port " + PORT);
     
 } )
