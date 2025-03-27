@@ -90,7 +90,7 @@ const Sidebar = () => {
       <div className="flex-1">
         <nav className="flex flex-col p-3 space-y-2">
           <SidebarItem to="/admin-dash" icon={<Home size={20} />} label="Dashboard" isOpen={true} closeSidebar={() => isMobile && setIsOpen(false)} />
-          <SidebarItem to="/allProducts" icon={<Store size={20} />} label="Products" isOpen={isOpen} closeSidebar={() => isMobile && setIsOpen(false)} />
+          <SidebarItem to="/allProducts" icon={<Store size={20} />} label="Products" isOpen={true} closeSidebar={() => isMobile && setIsOpen(false)} />
           <SidebarItem to="/admin-orders" icon={<ShoppingBag size={20} />} label="Orders" isOpen={true} closeSidebar={() => isMobile && setIsOpen(false)} />
           <SidebarItem to="/create-product" icon={<PlusCircle size={20} />} label="Add Product" isOpen={true} closeSidebar={() => isMobile && setIsOpen(false)} />
           <SidebarItem to="/categories" icon={<List size={20} />} label="Categories" isOpen={true} closeSidebar={() => isMobile && setIsOpen(false)} />

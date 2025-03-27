@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateOrderStatusThunk, deleteOrderThunk } from "../app/features/cart/CartSlice";
 import { socket } from "../lib/socket";
 import { deleteOrder, setOrderStatus, setSocketConnected } from "../app/features/cart/CartSlice";
+import { useToast } from "../components/Toast";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -59,12 +60,14 @@ const AdminOrders = () => {
   const detailsRefs = useRef({});
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.cart.userOrders);
+  const showToast = useToast()
 
   useEffect(() => {
     // Listen for order deletion
     socket.on("orderDeleted", (data) => {
       console.log("Received order deletion event:", data);
       dispatch(deleteOrder(data.deletedOrderId));
+      showToast('error','Order cancelled by user')
     });
 
     // Listen for order status updates
@@ -112,9 +115,15 @@ const AdminOrders = () => {
 
 
   const confirmDeleteOrder = async () => {
-    dispatch(deleteOrderThunk(orderToDelete));
-    setShowConfirmModal(false);
-    setOrderToDelete(null);
+    try {
+      await dispatch(deleteOrderThunk(orderToDelete)).unwrap();
+      showToast('success', 'Order deleted successfully');
+    } catch (error) {
+      showToast('error', 'Failed to delete order');
+    } finally {
+      setShowConfirmModal(false);
+      setOrderToDelete(null);
+    }
   };
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {

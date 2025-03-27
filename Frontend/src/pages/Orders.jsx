@@ -19,6 +19,7 @@ import { setOrders } from "../app/features/cart/CartSlice";
 import { socket } from "../lib/socket";
 import { deleteOrder, setOrderStatus, setSocketConnected } from "../app/features/cart/CartSlice";
 
+
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
     Pending: {
@@ -54,6 +55,7 @@ const Orders = () => {
   const detailsRefs = useRef({});
   const showToast = useToast();
   const dispatch = useDispatch();
+  
 
   // Use Redux state for orders instead of local state
   const orders = useSelector((state) => state.cart.userOrders);
@@ -128,10 +130,10 @@ const Orders = () => {
   const handleDeleteOrder = async () => {
     try {
       await dispatch(deleteOrderThunk(deleteModalOrderId)).unwrap();
-      showToast('Order cancelled successfully', 'success');
+      showToast('success', 'Order Cancelled Successfully');
       setDeleteModalOrderId(null);
     } catch (error) {
-      showToast('Failed to cancel order', 'error');
+      showToast('error', 'Failed to cancel order');
       console.error('Order deletion error:', error);
     }
   };
