@@ -13,6 +13,11 @@ import {
   Search,
   Filter,
 } from "lucide-react";
+import { setOrders } from "../app/features/cart/CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { updateOrderStatusThunk, deleteOrderThunk } from "../app/features/cart/CartSlice";
+import { socket } from "../lib/socket";
+import { deleteOrder, setOrderStatus, setSocketConnected } from "../app/features/cart/CartSlice";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -42,7 +47,6 @@ const OrderStatusBadge = ({ status }) => {
 };
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
@@ -53,15 +57,48 @@ const AdminOrders = () => {
   const [orderToDelete, setOrderToDelete] = useState(null);
 
   const detailsRefs = useRef({});
+  const dispatch = useDispatch();
+  const orders = useSelector((state) => state.cart.userOrders);
+
+  useEffect(() => {
+    // Listen for order deletion
+    socket.on("orderDeleted", (data) => {
+      console.log("Received order deletion event:", data);
+      dispatch(deleteOrder(data.deletedOrderId));
+    });
+
+    // Listen for order status updates
+    socket.on("orderStatusUpdated", (data) => {
+      console.log("Received order status update event:", data);
+      dispatch(setOrderStatus({ orderId: data.orderId, newStatus: data.newStatus }));
+    });
+
+    socket.on('orderCreated', (data) => {
+      dispatch(setOrders(data?.orders));
+      console.log('New order received via Socket:', data?.orders);
+    });
+
+    // Handle connection status
+    socket.on("connect", () => dispatch(setSocketConnected(true)));
+    socket.on("disconnect", () => dispatch(setSocketConnected(false)));
+
+    // Cleanup on unmount
+    return () => {
+      socket.off("order:deleted");
+      socket.off("order:status-updated");
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, [dispatch]);;
+  
 
   useEffect(() => {
     const fetchAllOrders = async () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/order/all-orders");
-        console.log(response);
 
-        setOrders(response.data);
+        dispatch(setOrders(response.data));
       } catch (err) {
         console.error("Error fetching orders:", err);
         setError("Failed to load orders. Please try again later.");
@@ -71,7 +108,18 @@ const AdminOrders = () => {
     };
 
     fetchAllOrders();
-  }, []);
+  }, [dispatch]);
+
+
+  const confirmDeleteOrder = async () => {
+    dispatch(deleteOrderThunk(orderToDelete));
+    setShowConfirmModal(false);
+    setOrderToDelete(null);
+  };
+
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    dispatch(updateOrderStatusThunk({ orderId, newStatus }));
+  };
 
   const toggleOrderDetails = (orderId) => {
     if (expandedOrderId === orderId) {
@@ -89,28 +137,7 @@ const AdminOrders = () => {
     }
   };
 
-  const updateOrderStatus = async (orderId, newStatus, e) => {
-    // Prevent event propagation to parent elements
-    if (e) {
-      e.stopPropagation();
-    }
 
-    try {
-      await axiosInstance.put(`/order/update-status/${orderId}`, {
-        status: newStatus,
-      });
-
-      // Update local state
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      alert("Failed to update order status. Please try again.");
-    }
-  };
 
   const handleDeleteClick = (orderId, e) => {
     // Prevent event propagation to parent elements
@@ -122,32 +149,19 @@ const AdminOrders = () => {
     setShowConfirmModal(true);
   };
 
-  const confirmDeleteOrder = async () => {
-    if (!orderToDelete) return;
-    try {
-      const res = await axiosInstance.delete(`/order/delete/${orderToDelete}`);
-      toast.success("Order deleted successfully");
-      setOrders(res.data?.orders);
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to delete order. Please try again.");
-    } finally {
-      setShowConfirmModal(false);
-      setOrderToDelete(null);
-    }
-  };
+
 
   const filteredOrders = orders
     .filter((order) => {
       // Search filter
       const searchMatch =
-        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order._id?.toLowerCase().includes(searchTerm?.toLowerCase()) ||
         (order.user?.email &&
-          order.user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          order.user.email?.toLowerCase().includes(searchTerm?.toLowerCase())) ||
         (order.shippingAddress?.fullName &&
-          order.shippingAddress.fullName
+          order.shippingAddress?.fullName
             .toLowerCase()
-            .includes(searchTerm.toLowerCase()));
+            .includes(searchTerm?.toLowerCase()));
 
       // Status filter
       const statusMatch =
@@ -275,7 +289,7 @@ const AdminOrders = () => {
                                   size={14}
                                   className="mr-1 text-gray-500"
                                 />
-                                {order.userId?.email || "Unknown User"}
+                                {order.userId?.email }
                               </div>
                               <p className="text-sm">
                                 {formatDate(order.createdAt)}
@@ -433,7 +447,7 @@ const AdminOrders = () => {
                             <div className="flex flex-wrap gap-2">
                               <button
                                 onClick={(e) =>
-                                  updateOrderStatus(order._id, "Pending", e)
+                                  handleUpdateOrderStatus(order._id, "Pending", e)
                                 }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Pending"
@@ -446,7 +460,7 @@ const AdminOrders = () => {
 
                               <button
                                 onClick={(e) =>
-                                  updateOrderStatus(order._id, "Shipped", e)
+                                  handleUpdateOrderStatus(order._id, "Shipped", e)
                                 }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Shipped"
@@ -459,7 +473,7 @@ const AdminOrders = () => {
 
                               <button
                                 onClick={(e) =>
-                                  updateOrderStatus(order._id, "Delivered", e)
+                                  handleUpdateOrderStatus(order._id, "Delivered", e)
                                 }
                                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                                   order.status === "Delivered"

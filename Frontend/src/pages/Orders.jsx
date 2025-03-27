@@ -9,8 +9,15 @@ import {
   Truck,
   CheckCircle,
   Clock,
+  Trash2
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useToast } from "../components/Toast";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteOrderThunk } from "../app/features/cart/CartSlice";
+import { setOrders } from "../app/features/cart/CartSlice";
+import { socket } from "../lib/socket";
+import { deleteOrder, setOrderStatus, setSocketConnected } from "../app/features/cart/CartSlice";
 
 const OrderStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -40,19 +47,63 @@ const OrderStatusBadge = ({ status }) => {
 };
 
 const Orders = () => {
-  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [deleteModalOrderId, setDeleteModalOrderId] = useState(null);
   const detailsRefs = useRef({});
+  const showToast = useToast();
+  const dispatch = useDispatch();
+
+  // Use Redux state for orders instead of local state
+  const orders = useSelector((state) => state.cart.userOrders);
+
+  useEffect(() => {
+    console.log("Socket connected:", socket.connected);
+  
+    // Listen for order deletion
+    socket.on("orderDeleted", (data) => {
+      console.log("Received order deletion event:", data);
+      dispatch(deleteOrder(data.deletedOrderId));
+    });
+  
+    // Listen for order status updates
+    socket.on("orderStatusUpdated", (data) => {
+      console.log("Received order status update event:", data);
+      dispatch(setOrderStatus({ orderId: data.orderId, newStatus: data.newStatus }));
+    });
+  
+    // Handle connection status
+    socket.on("connect", () => {
+      console.log("Socket connected");
+      dispatch(setSocketConnected(true));
+    });
+  
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      dispatch(setSocketConnected(false));
+    });
+  
+    // Cleanup on unmount
+    return () => {
+      console.log("Cleaning up socket listeners...");
+      socket.off("order:deleted");
+      socket.off("order:status-updated");
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, [dispatch]);
+  
+  
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/order/user-orders");
-
-        setOrders(response.data);
+        
+        // Use Redux action to set orders instead of local state
+        dispatch(setOrders(response.data));
       } catch (err) {
         console.error("Error fetching orders:", err);
         setError("Failed to load your orders. Please try again later.");
@@ -62,13 +113,26 @@ const Orders = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [dispatch]);
+
+
 
   const toggleOrderDetails = (orderId) => {
     if (expandedOrderId === orderId) {
       setExpandedOrderId(null);
     } else {
       setExpandedOrderId(orderId);
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    try {
+      await dispatch(deleteOrderThunk(deleteModalOrderId)).unwrap();
+      showToast('Order cancelled successfully', 'success');
+      setDeleteModalOrderId(null);
+    } catch (error) {
+      showToast('Failed to cancel order', 'error');
+      console.error('Order deletion error:', error);
     }
   };
 
@@ -87,7 +151,7 @@ const Orders = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-purple-400">My Orders</h1>
           <Link
-            to="/products"
+            to="/home"
             className="bg-purple-600 hover:bg-purple-700 transition px-4 py-2 rounded-lg text-sm font-medium"
           >
             Continue Shopping
@@ -110,7 +174,7 @@ const Orders = () => {
               You haven't placed any orders yet.
             </p>
             <Link
-              to="/shop"
+              to="/home"
               className="bg-purple-600 hover:bg-purple-700 transition px-6 py-2 rounded-lg font-medium"
             >
               Start Shopping Now
@@ -200,7 +264,7 @@ const Orders = () => {
                             <p>
                             <strong>Zip:</strong>{" "}
                             {order?.shippingAddress?.zipCode}
-                            </p>
+                          </p>
                           
                           <p>
                             <strong>Phone:</strong>{" "}
@@ -270,6 +334,18 @@ const Orders = () => {
                           <span>${order?.totalPrice?.toFixed(2)}</span>
                         </div>
                       </div>
+
+                      {/* Cancel Order Button for Pending Orders */}
+                      {order?.status === "Pending" && (
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => setDeleteModalOrderId(order?._id)}
+                            className="flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition"
+                          >
+                            <Trash2 size={16} className="mr-2" /> Cancel Order
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -278,6 +354,45 @@ const Orders = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Order Confirmation Modal */}
+      {deleteModalOrderId && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-[1000] transition-opacity duration-300 ease-in-out"
+          style={{ 
+            animation: 'fadeIn 0.3s ease-in-out'
+          }}
+        >
+          <div
+            className="bg-gray-800 p-6 rounded-lg shadow-xl text-center relative w-[350px] border border-purple-500"
+            style={{ 
+              animation: 'scaleIn 0.3s ease-in-out',
+              willChange: 'opacity, transform'
+            }}
+          >
+            <p className="text-lg font-semibold mb-5 text-white">
+              Are you sure you want to cancel this order?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleDeleteOrder}
+                className="bg-purple-600 text-white px-5 py-2 rounded-md hover:bg-purple-700 transition"
+              >
+                Yes, Cancel Order
+              </button>
+              <button
+                onClick={() => setDeleteModalOrderId(null)}
+                className="bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
+              >
+                Keep Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      
     </div>
   );
 };

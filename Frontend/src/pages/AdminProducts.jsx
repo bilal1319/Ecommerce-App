@@ -8,9 +8,11 @@ import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import { setProducts } from "../app/features/products/productSlice";
 import { stopLoading } from "../app/features/cart/CartSlice";
+import { useNavigate } from "react-router-dom";
 
 export const AdminProducts = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { products, productLoading } = useSelector((state) => state.product);
   const [searchText, setSearchText] = useState("");
   const [allProducts, setAllProducts] = useState([]); // Store all products
@@ -51,29 +53,41 @@ export const AdminProducts = () => {
     setProductToDelete(null);
   };
 
+    // Truncate description to 5-6 words
+    const truncateDescription = (description) => {
+      const words = description.split(' ');
+      return words.length > 9 
+        ? words.slice(0, 9).join(' ') + '...'
+        : description;
+    };
+
   return (
     <div className="relative pb-5">
-      <div className="w-full flex justify-between items-center"></div>
+      
 
-      <div className="relative w-[170px] md:w-[250px] text-white">
+      <div className="fixed top-16  lg:top-0 py-4  w-full ">
+      <div className="relative w-[250px] text-white">
         <input
           type="text"
           placeholder="Search products..."
-          className="w-full pl-12 pr-4 border-none py-3 rounded-full bg-gray-900 border focus:outline-none focus:ring focus:ring-purple-600 shadow-sm transition-all"
+          className="w-full z-[10] pl-12 pr-4 border-none py-3 rounded-full bg-gray-900 border focus:outline-none focus:ring focus:ring-purple-600 shadow-sm transition-all"
           value={searchText}
           onChange={handleSearch}
         />
         <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-100 w-5 h-5" />
       </div>
+      </div>
 
+      <main className="mt-32 ">
       {productLoading ? (
         <p className="text-center text-gray-400">Loading products...</p>
       ) : (
-        <div className="grid grid-cols-1 pt-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 max-w-[1500px] gap-6 ">
+        <div className="grid   grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 max-w-[1500px] gap-6 ">
           {products?.map((product) => (
             <div
               key={product?._id}
-              className="p-4 rounded-lg bg-gray-700 shadow-md text-white"
+              onClick={() => navigate(`/adminProduct/${product._id}`)}
+              className="p-4 cursor-pointer rounded-lg bg-gray-800 shadow-md text-white"
             >
               <img
                 src={product?.images?.[0]?.url || "/placeholder.jpg"}
@@ -81,7 +95,9 @@ export const AdminProducts = () => {
                 className="w-full h-40 object-contain mb-2 border border-gray-500 p-1 rounded-md"
               />
               <h2 className="text-lg font-semibold">{product?.name}</h2>
-              <p className="">{product?.description}</p>
+              <p className="text-gray-400 mt-2 mb-4 flex-grow">
+                  {truncateDescription(product.description)}
+                </p>
               <p className="text-green-500 font-bold">Rs. {product?.price}/-</p>
 
               <div className="flex gap-2 mt-2">
@@ -103,6 +119,7 @@ export const AdminProducts = () => {
           ))}
         </div>
       )}
+      </main>
 
       {/* Delete confirmation modal */}
       {showDeleteModal && (

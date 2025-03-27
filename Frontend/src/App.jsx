@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Signup } from "./pages/Signup";
 import { Login } from "./pages/Login";
-import { Home } from "./pages/Home";
 import { Products } from "./pages/Products";
 import { CreateProduct } from "./pages/CreateProduct";
 import { Loader } from "lucide-react";
@@ -24,6 +23,9 @@ import Orders from "./pages/Orders";
 import { ToastContainer } from "react-toastify";
 import PlaceOrder from "./pages/PlaceOrder";
 import AdminOrders from "./pages/AdminOrders";
+import ProductDetail from "./pages/ProductDetail";
+import { ToastProvider } from "./components/Toast";
+import AdminProductDetail from "./pages/AdminProductDetail";
 
 
 const NotFound = () => {
@@ -43,7 +45,9 @@ const NotFound = () => {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </Router>
   );
 }
@@ -77,6 +81,7 @@ function AppContent() {
 
   return (
     <>
+    
       <Toaster position="top-center" reverseOrder={false} />
       <ToastContainer
         position="top-right"
@@ -97,11 +102,13 @@ function AppContent() {
 
   {/* User Protected Routes */}
   <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-    <Route path="/home" element={<Home />} />
-    <Route path="/products" element={<Products />} />
+    <Route path="/home" element={<Products />} />
     <Route path="/cart" element={<CartPage />} />
     <Route path="/place-order" element={<PlaceOrder />} />
     <Route path="/orders" element={<Orders />} />
+    <Route path="/product/:id" element={<ProductDetail />} />
+  
+
   </Route>
 
   {/* Admin Protected Routes */}
@@ -113,6 +120,7 @@ function AppContent() {
       <Route path="/categories" element={<Categories />} />
       <Route path="/admin-dash" element={<ChartsGrid />} />
       <Route path="/admin-orders" element={<AdminOrders />} />
+    <Route path="/adminProduct/:id" element={<AdminProductDetail />} />
     </Route>
   </Route>
 

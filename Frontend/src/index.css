@@ -21,3 +21,52 @@
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+
+/* toast */
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  40% {
+    transform: translateX(-10%);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateX(5%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-right {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(-10%);
+    opacity: 0.9;
+  }
+  70% {
+    transform: translateX(120%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: slide-in-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: slide-out-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

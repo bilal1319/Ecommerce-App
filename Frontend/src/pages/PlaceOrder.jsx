@@ -7,6 +7,10 @@ import { axiosInstance } from "../lib/axios";
 import { cartItemsHandler } from "../app/features/cart/CartSlice";
 import { useNavigate } from "react-router-dom";
 import { startLoading, stopLoading } from "../app/features/cart/CartSlice";
+import { setOrders } from "../app/features/cart/CartSlice";
+import { socket } from "../lib/socket";
+import { setSocketConnected } from "../app/features/cart/CartSlice";
+
 
 const PlaceOrder = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -15,7 +19,7 @@ const PlaceOrder = () => {
   const [addressForm, setAddressForm] = useState({
     fullName: "",
     addressLine1: "",
-    email: "", // Changed from addressLine2 to email
+    email: "", 
     city: "",
     state: "",
     zipCode: "",
@@ -26,6 +30,61 @@ const PlaceOrder = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [modalAnimation, setModalAnimation] = useState("");
+
+  useEffect(() => {
+    const fetchCart = async() => {
+      try {
+        setLoading(true);
+        const { data } = await axiosInstance.get("/cart/get-cart");
+        dispatch(cartItemsHandler(data?.cartItems || []));
+        
+        // If cart is empty, navigate to cart page
+        if (!data?.cartItems || data.cartItems.length === 0) {
+          navigate("/cart");
+        }
+      } catch (error) {
+        console.log(error);
+        navigate("/cart");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCart()
+  }, [dispatch, navigate]);
+
+  useEffect(() => {
+    console.log("Socket connected:", socket.connected);
+  
+    // Listen for order deletion
+    socket.on('orderCreated', (data) => {
+      dispatch(setOrders([data?.orders]));
+      console.log('New order received via Socket:', data.orders);
+    });
+  
+  
+    // Handle connection status
+    socket.on("connect", () => {
+      console.log("Socket connected");
+      dispatch(setSocketConnected(true));
+    });
+  
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      dispatch(setSocketConnected(false));
+    });
+  
+    // Cleanup on unmount
+    return () => {
+      console.log("Cleaning up socket listeners...");
+      socket.off("order:deleted");
+      socket.off("order:status-updated");
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, [dispatch])
+
+
 
   useEffect(() => {
     // Add email to required fields
@@ -55,6 +114,7 @@ const PlaceOrder = () => {
       setModalAnimation("");
     }
   }, [showConfirmation]);
+
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -104,7 +164,11 @@ const PlaceOrder = () => {
         });
   
         orderResponseData = orderResponse.data; // Save the response data to use later
-  
+
+        console.log("Emitted orderCreated event:", orderResponseData);
+        
+        socket.emit('orderCreated', orderResponseData);
+
         // Clear cart API call
         await axiosInstance.delete("/cart/clear");
         dispatch(cartItemsHandler([])); // Update Redux store
@@ -125,7 +189,7 @@ const PlaceOrder = () => {
         setLoading(false);
   
         // Navigate after order is complete
-        navigate("/products", {
+        navigate("/home", {
           state: {
             showOrderConfirmation: true,
           },
@@ -170,6 +234,16 @@ const PlaceOrder = () => {
 
   const RequiredIndicator = () => <span className="text-red-500 ml-1">*</span>;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+          
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Navbar />
@@ -206,18 +280,9 @@ const PlaceOrder = () => {
           </div>
         )}
 
-        {cartItems?.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-xl text-gray-400 mb-4">Your cart is empty</p>
-            <Link
-              to={"/products"}
-              className="bg-purple-600 px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-            >
-              Continue Shopping
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-6 pb-24 lg:pb-3">
+        
+          {cartItems.length !== 0 &&
+            <div className="flex flex-col lg:flex-row gap-6 pb-24 lg:pb-3">
             <div className="flex-1 space-y-4">
               <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-md">
                 <h2 className="font-bold text-xl mb-4 pb-2 border-b border-gray-700 text-purple-400">
@@ -422,7 +487,8 @@ const PlaceOrder = () => {
               </div>
             </div>
           </div>
-        )}
+          }
+      
       </div>
     </div>
   );

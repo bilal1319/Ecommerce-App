@@ -8,6 +8,8 @@ export const getUserCart = async (req, res) => {
     if (!cart) return res.status(200).json({ cartItems: [] });
     res.json(cart);
   } catch (error) {
+    console.log("user cart", error);
+    
     res.status(500).json({ message: error.message });
   }
 };

@@ -1,16 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import tech from "../assets/tech.webp";
-import iphone from "../assets/iphone.webp";
-import android from "../assets/andriod.webp";
-import beauty from "../assets/beauty.webp";
-import cloth from "../assets/cloth.webp";
+// Import the images with webpack/vite optimizations
+import tech from "../assets/tech.webp?url";
+import iphone from "../assets/iphone.webp?url";
+import android from "../assets/andriod.webp?url";
+import beauty from "../assets/beauty.webp?url";
+import cloth from "../assets/cloth.webp?url";
 
 const images = [cloth, tech, iphone, android, beauty];
 
 function Slider() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
+  const preloadedImages = useRef([]);
+
+  // Preload images for instant loading
+  useEffect(() => {
+    preloadedImages.current = images.map((src) => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+  }, []);
 
   // Auto-slide every 10s
   const startAutoSlide = () => {
@@ -45,7 +56,7 @@ function Slider() {
   };
 
   return (
-    <div className="relative w-[95vw] sm:w-[85vw] md:w-[80vw] lg:w-[70vw] max-w-[1500px] mx-auto h-[30vh] sm:h-[40vh] md:h-[50vh] lg:h-[60vh] overflow-hidden mt-4 sm:mt-6  sm:rounded-lg shadow-md sm:shadow-lg">
+    <div className="relative w-[95vw] sm:w-[85vw] md:w-[60vw] lg:w-[50vw] max-w-[1500px] mx-auto h-[30vh] sm:h-[40vh] md:h-[35vh] lg:h-[40vh] overflow-hidden mt-4 sm:mt-6 sm:rounded-lg shadow-md sm:shadow-lg">
       {/* Image Container with Sliding Effect */}
       <div
         className="flex transition-transform duration-1000 ease-in-out h-full"
@@ -57,7 +68,9 @@ function Slider() {
             src={src} 
             className="w-full h-full flex-shrink-0 object-fit object-center" 
             alt={`Slide ${index + 1}`} 
-            loading="lazy" 
+            // Remove lazy loading to prioritize immediate visibility
+            fetchPriority="high"
+            decoding="async"
           />
         ))}
       </div>

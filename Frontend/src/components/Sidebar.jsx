@@ -82,7 +82,7 @@ const Sidebar = () => {
   const mobileSidebar = (
     <div 
       ref={sidebarRef}
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-gray-900 border-r border-gray-700 z-10 shadow-lg overflow-y-auto transition-transform duration-300 ease-in-out ${
+      className={`fixed top-14 left-0 h-[calc(100vh-4rem)] w-64 bg-gray-900 border-r border-gray-700 z-10 shadow-lg overflow-y-auto transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >

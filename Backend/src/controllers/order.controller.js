@@ -1,6 +1,9 @@
 import Order from '../models/order.model.js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose'; // Add this import
+import { io} from '../socket.io.js'
+
 
 dotenv.config();
 
@@ -64,8 +67,11 @@ export const sendOrderConfirmationEmail = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   try {
+    console.log('Received request body:', req.body); // Log incoming request data
+
     const { items, totalPrice, shippingAddress } = req.body;
     if (!items || items.length === 0) {
+      console.log('Validation failed: Order items are empty');
       return res.status(400).json({ message: 'Order items cannot be empty' });
     }
 
@@ -77,12 +83,32 @@ export const createOrder = async (req, res) => {
       status: 'Pending'
     });
 
+    console.log('New order created:', newOrder); // Log created order
+
+    // Fetch updated orders list
+    const updatedOrders = await Order.find()
+      .populate({ path: 'userId', select: 'name email' })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log('Updated orders list fetched:', updatedOrders.length, 'orders found'); // Log order count
+
+    // Emit event to notify all clients about the new order
+    req.io.emit('orderCreated', {
+      message: 'New order created',
+      newOrder,
+      orders: updatedOrders
+    });
+
+    console.log('Event emitted: orderCreated'); // Confirm event emission
+
     res.status(201).json(newOrder);
   } catch (error) {
-    // console.error('Error creating order:', error);
+    console.error('Error creating order:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get Orders for a Specific User
 export const getUserOrders = async (req, res) => {
@@ -118,7 +144,6 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// Create a New Order
 
 
 // Update Order Status (Admin)
@@ -133,23 +158,66 @@ export const updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
+    // Emit event to notify clients about order status update
+    req.io.emit('orderStatusUpdated', {
+      orderId,
+      newStatus: status
+    });
+
     res.status(200).json({ message: 'Order status updated', order });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating order status:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// Delete Order (Admin)
+
+// Delete Order 
 export const deleteOrder = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    const order = await Order.findByIdAndDelete(orderId);
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    console.log("Received delete request for order:", orderId);
 
-    const updatedOrders = await Order.find();
-    res.status(200).json({ message: "Order deleted successfully", orders: updatedOrders });
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      console.log("Invalid Order ID format:", orderId);
+      return res.status(400).json({ message: "Invalid Order ID format" });
+    }
+
+    const order = await Order.findByIdAndDelete(orderId);
+    if (!order) {
+      console.log("Order not found:", orderId);
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    console.log("Order deleted:", orderId);
+
+    const updatedOrders = await Order.find()
+      .populate({ path: "userId", select: "name email" })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log("Updated orders fetched after deletion:", updatedOrders.length);
+
+    // Emit event using req.io
+    console.log("Emitting event: orderDeleted");
+    req.io.emit("orderDeleted", {
+      message: "Order deleted successfully",
+      orders: updatedOrders,
+      deletedOrderId: orderId,
+    });
+
+    console.log("Event emitted successfully!");
+
+    res.status(200).json({
+      message: "Order deleted successfully",
+      orders: updatedOrders,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error in deleteOrder:", error);
+    res.status(500).json({ message: "Internal server error while deleting order" });
   }
 };
+
+
+

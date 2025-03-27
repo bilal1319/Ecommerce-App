@@ -21,6 +21,7 @@ router.get('/user-orders', getUserOrders);
 // Create a new order
 router.post('/create', createOrder);
 router.post('/send-confirmation-email', sendOrderConfirmationEmail);
+router.delete('/delete/:orderId', deleteOrder);
 
 // Admin-only routes
 router.use(isAdmin);
@@ -31,7 +32,5 @@ router.get('/all-orders', getAllOrders);
 // Update order status (Admin)
 router.put('/update-status/:orderId', updateOrderStatus);
 
-// Delete an order (Admin)
-router.delete('/delete/:orderId', deleteOrder);
 
 export default router;
