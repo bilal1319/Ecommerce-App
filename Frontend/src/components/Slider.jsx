@@ -75,23 +75,7 @@ function Slider() {
         ))}
       </div>
 
-      {/* Indicators */}
-      <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${
-              index === currentIndex ? "bg-blue-500 scale-125" : "bg-gray-300"
-            }`}
-            onClick={() => {
-              stopAutoSlide();
-              setCurrentIndex(index);
-              restartAutoSlide();
-            }}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+
 
       {/* Navigation Buttons */}
       <button
