@@ -21,8 +21,8 @@ const __dirname = path.resolve();
 // Enhanced CORS configuration
 const corsOptions = {
   origin: [
-    process.env.CLIENT_URL || VITE_URL,
-    RENDER_URL,
+    process.env.CLIENT_URL || process.env.VITE_URL,
+    process.env.RENDER_URL,
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'Accept', 'Origin'],
