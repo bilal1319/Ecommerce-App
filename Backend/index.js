@@ -21,9 +21,8 @@ const __dirname = path.resolve();
 // Enhanced CORS configuration
 const corsOptions = {
   origin: [
-    process.env.CLIENT_URL || "http://localhost:5173",
-    "https://ecommerce-app-48d1.onrender.com",
-    "https://ecommerce-app-production-45fd.up.railway.app"
+    process.env.CLIENT_URL || VITE_URL,
+    RENDER_URL,
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with', 'Accept', 'Origin'],

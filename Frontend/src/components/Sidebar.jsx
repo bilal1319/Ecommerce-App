@@ -1,34 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Home, List, Settings, ShoppingBag, PlusCircle, LogOut, Moon, Sun, Store } from "lucide-react";
+import { Menu, X, Home, List, ShoppingBag, PlusCircle, LogOut,Store } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "../app/features/auth/authActions";
 import { setAuthUser } from "../app/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true); // Default to open - we'll update based on screen size
+  const [isOpen, setIsOpen] = useState(window.innerWidth >= 1024); // Immediate initial state based on screen width
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024); // Immediate mobile detection
   const [logoutClicked, setLogoutClicked] = useState(false);
   const [error, setError] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Check if screen is mobile size
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      // Set sidebar state based on device type
-      setIsOpen(!mobile); // Open for desktop, closed for mobile
-    };
-    
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+
 
   // Handle outside click to close mobile sidebar
   useEffect(() => {

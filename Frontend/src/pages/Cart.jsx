@@ -6,14 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateCartItem, deleteCartItem, cartItemsHandler } from "../app/features/cart/CartSlice";
 import { axiosInstance } from "../lib/axios";
 
-// Add a debounce utility function
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
 
 const CartPage = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -54,33 +46,28 @@ const CartPage = () => {
   }, [dispatch, lastFetchTime, initialLoadComplete]);
 
   const handleQuantityChange = (id, quantityChange) => {
-    // Find the current item and its quantity before updating
+
     const currentItem = cartItems.find(item => item._id === id);
     if (!currentItem) return;
     
     const originalQuantity = currentItem.quantity;
     const newQuantity = originalQuantity + quantityChange;
     
-    // Don't proceed if trying to set quantity below 1
     if (newQuantity < 1) return;
     
-    // First, update UI state immediately with local state to ensure instant feedback
     const updatedCartItems = cartItems.map(item => 
       item._id === id ? {...item, quantity: newQuantity} : item
     );
     
-    // Update local state immediately (this will cause UI to refresh)
     dispatch(cartItemsHandler(updatedCartItems));
     
-    // Set the item as updating (for visual feedback)
     setUpdatingItems((prev) => ({ ...prev, [id]: true }));
     
-    // Then make the API call in the background
     dispatch(updateCartItem({ productId: id, quantity: quantityChange }))
       .unwrap()
       .catch((error) => {
         console.error("Error updating cart:", error);
-        // If there's an error, roll back to the original state
+
         const rollbackItems = cartItems.map(item => 
           item._id === id ? {...item, quantity: originalQuantity} : item
         );
@@ -89,30 +76,26 @@ const CartPage = () => {
       .finally(() => setUpdatingItems((prev) => ({ ...prev, [id]: false })));
   };
   
-  // Optimistic UI updates for item removal
   const removeItem = useCallback(
     (id) => {
-      // Find the item to be removed (for potential rollback)
+
       const itemToRemove = cartItems.find(item => item._id === id);
       if (!itemToRemove) return;
       
-      // Optimistically update UI by filtering out the item
+
       const updatedCartItems = cartItems.filter(item => item._id !== id);
       
-      // Update UI immediately using the existing cartItemsHandler action
       dispatch(cartItemsHandler(updatedCartItems));
       
-      // Use a delayed loading indicator
       let updateTimeout = setTimeout(() => {
         setUpdatingItems((prev) => ({ ...prev, [id]: true }));
       }, 200);
       
-      // Make the API call in the background
       dispatch(deleteCartItem({ productId: id }))
         .unwrap()
         .catch((error) => {
           console.error("Error removing cart item:", error);
-          // If there's an error, add the item back to the cart
+
           dispatch(cartItemsHandler([...updatedCartItems, itemToRemove]));
         })
         .finally(() => {
@@ -123,7 +106,7 @@ const CartPage = () => {
     [dispatch, cartItems]
   );
 
-  // Memoized subtotal calculation
+
   const subtotal = useMemo(
     () => cartItems.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 0), 0),
     [cartItems]
