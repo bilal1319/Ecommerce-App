@@ -86,17 +86,6 @@ const GoogleLoginButton = () => {
     <div className="google-login-container flex justify-center">
       <div id="googleSignInDiv" ></div>
       
-      {isLoading && (
-        <div className="loading-indicator" style={{ marginTop: '10px' }}>
-          Authenticating...
-        </div>
-      )}
-      
-      {!isButtonRendered && !isLoading && (
-        <div className='mt-4'>
-          Loading Google Sign-In...
-        </div>
-      )}
     </div>
   );
 };
