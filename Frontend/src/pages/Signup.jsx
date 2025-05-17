@@ -39,7 +39,7 @@ export const Signup = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 px-4">
+    <div className="flex justify-center items-center bg-gray-900 px-4">
       <div className="bg-gray-800 shadow-xl rounded-3xl rounded-b-lg p-8 w-full max-w-md mt-10 relative border border-gray-700">
         {/* Profile Icon - Positioned half outside the form */}
         <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
