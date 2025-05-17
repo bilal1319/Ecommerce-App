@@ -40,11 +40,11 @@ const PlaceOrder = () => {
         
         // If cart is empty, navigate to cart page
         if (!data?.cartItems || data.cartItems.length === 0) {
-          navigate("/cart");
+          navigate("/home");
         }
       } catch (error) {
         console.log(error);
-        navigate("/cart");
+        navigate("/home");
       } finally {
         setLoading(false);
       }
