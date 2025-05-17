@@ -10,6 +10,10 @@ import connectDB from './src/config/db.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import passport from 'passport';
+import session from 'express-session';
+import User from './src/models/user.model.js';
+import './src/config/passport.js'; // Ensure this is imported to initialize passport strategies 
 
 dotenv.config();
 connectDB();
@@ -17,6 +21,8 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const __dirname = path.resolve();
+
+
 
 // Enhanced CORS configuration
 const corsOptions = {
@@ -29,6 +35,28 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200
 };
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'keyboard cat',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+passport.deserializeUser(async (id, done) => {
+    const user = await User.findById(id);
+    done(null, user);
+});
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));

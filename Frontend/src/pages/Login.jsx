@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../app/features/auth/authSlice";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -126,7 +127,12 @@ export const Login = () => {
               </span>
             </Link>
           </p>
+
+          
         </form>
+        <span className="flex justify-center py-3 text-center text-gray-400">or</span>
+
+          <GoogleLoginButton/>
       </div>
     </div>
   );

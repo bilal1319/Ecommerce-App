@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../app/features/auth/authSlice";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 export const Signup = () => {
   const [name, setName] = useState("");
@@ -159,6 +160,7 @@ export const Signup = () => {
             </Link>
           </p>
         </form>
+        
       </div>
     </div>
   );
