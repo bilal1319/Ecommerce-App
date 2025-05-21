@@ -1,6 +1,16 @@
 import express from 'express';
 import { signup, login, logout, checkAuth } from '../controllers/auth.controller.js';
 import { protectRoute } from '../middleware/auth.middleware.js';
+import {
+   sendResetCode,
+   verifyResetCode,
+   resetPassword,
+   getResetCodeByEmail,
+   sendVerificationCode,
+   getVerifyCodeByEmail,
+   verifyEmailCode
+  
+  } from '../controllers/auth.controller.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { OAuth2Client } from 'google-auth-library';
@@ -16,6 +26,13 @@ router.post('/signup', signup);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/checkAuth', protectRoute, checkAuth);
+router.post('/forgot-password', sendResetCode);
+router.post('/verify-reset-code', verifyResetCode);
+router.post('/reset-password', resetPassword);
+router.get('/get-reset-code/:email', getResetCodeByEmail);
+router.post('/send-verify-code', sendVerificationCode);
+router.get('/get-verification-code/:email', getVerifyCodeByEmail);
+router.post('/verify-email-code', verifyEmailCode);
 
 // Google login with Google Identity Services (one-tap and sign-in button)
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

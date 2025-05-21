@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../../lib/axios";
 
+
+
 export const signup = createAsyncThunk(
   "auth/signupUser",
   async ({ formData, navigate }, { rejectWithValue }) => {
@@ -50,13 +52,15 @@ export const login = createAsyncThunk(
 
   export const checkAuth = createAsyncThunk(
     "auth/checkAuth",
-    async ({ navigate }, { rejectWithValue }) => {
+    async ({ navigate, location }, { rejectWithValue }) => {
       try {
         const { data } = await axiosInstance.get("/auth/checkAuth");
         console.log(data?.role);
         return data?.role;
       } catch (error) {
-        navigate("/login");
+        if(location.pathname !== "/login" && location.pathname !== "/" && location.pathname !== "/forgot-password"){
+          navigate("/login");
+        }
         return rejectWithValue("Not authenticated");
       }
     }

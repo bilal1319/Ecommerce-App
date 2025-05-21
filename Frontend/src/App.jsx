@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./app/features/auth/authSlice";
 import { AdminProducts } from "./pages/AdminProducts";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthWrapper } from "./components/AuthWrapper";
 import { EditProduct } from "./pages/EditProduct";
@@ -26,6 +26,7 @@ import AdminOrders from "./pages/AdminOrders";
 import ProductDetail from "./pages/ProductDetail";
 import { ToastProvider } from "./components/Toast";
 import AdminProductDetail from "./pages/AdminProductDetail";
+import ForgotPasswordFlow from "./pages/ForgotPassword";
 
 
 const NotFound = () => {
@@ -58,9 +59,11 @@ function AppContent() {
   const { cartLoading } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  
 
   useEffect(() => {
-    dispatch(checkAuth({ navigate }));
+    dispatch(checkAuth({ navigate, location }));
     dispatch(fetchCategories());
     
 
@@ -99,6 +102,7 @@ function AppContent() {
   {/* Public Routes */}
   <Route path="/" element={<AuthWrapper><Signup /></AuthWrapper>} />
   <Route path="/login" element={<AuthWrapper><Login /></AuthWrapper>} />
+  <Route path='/forgot-password' element={<AuthWrapper><ForgotPasswordFlow /></AuthWrapper>} />
 
   {/* User Protected Routes */}
   <Route element={<ProtectedRoute allowedRoles={["user"]} />}>

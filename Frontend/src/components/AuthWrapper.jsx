@@ -10,6 +10,8 @@ export const AuthWrapper = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      const publicPaths = ["/", "/forgot-password"];
+
       try {
         const res = await axiosInstance.get("/auth/checkAuth");
         const role = res.data.role;
@@ -19,25 +21,20 @@ export const AuthWrapper = ({ children }) => {
         } else if (role === "user") {
           navigate("/home", { replace: true });
         } else {
-          // If not authenticated and on root path, stay there (for signup)
-          if (location.pathname === "/") {
+          if (publicPaths.includes(location.pathname)) {
             setLoading(false);
             return;
           }
-          // Otherwise go to login
           navigate("/login", { replace: true });
         }
       } catch (error) {
-        // If auth check fails and on root path, stay there (for signup)
-        if (location.pathname === "/") {
+        if (publicPaths.includes(location.pathname)) {
           setLoading(false);
           return;
         }
-        // Otherwise go to login
         navigate("/login", { replace: true });
       }
 
-      // Stop loading only after everything is handled
       setTimeout(() => setLoading(false), 100);
     };
 

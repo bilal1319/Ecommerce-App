@@ -50,7 +50,7 @@ export const Login = () => {
           <p className="text-red-400 text-lg my-2 text-center">{error}</p>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
             <input
               type="email"
@@ -119,6 +119,12 @@ export const Login = () => {
             Login
           </button>
 
+          <Link to={'/forgot-password'}>
+
+          <p className="text-gray-400 cursor-pointer hover:underline inline w-fit">Forgot Password?</p>
+
+          </Link>
+
           <p className="text-gray-400 text-center">
             Don't have an account?{" "}
             <Link to={'/'}>
@@ -127,7 +133,6 @@ export const Login = () => {
               </span>
             </Link>
           </p>
-
           
         </form>
         <span className="flex justify-center py-3 text-center text-gray-400">or</span>
