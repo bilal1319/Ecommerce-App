@@ -171,6 +171,7 @@ useEffect(() => {
     setLoading(true);
 
     try {
+      if(password.trim().length < 6) return setError('Password must be at least 6 characters long');
       // Complete signup process after verification and password collection
       const formData = {
         name: name.trim(),
@@ -205,7 +206,7 @@ useEffect(() => {
  
 
   return (
-    <div className="flex justify-center items-center min-h-screen mt-3 mb-2 bg-gray-900 px-4">
+    <div className="flex justify-center items-center min-h-screen mb-1 bg-gray-900 px-4">
       <div className="bg-gray-800 shadow-xl rounded-3xl rounded-b-lg p-8 w-full max-w-md mt-10 relative border border-gray-700">
         {/* Profile Icon - Positioned half outside the form */}
         <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
@@ -483,6 +484,7 @@ useEffect(() => {
                 )}
               </button>
             </div>
+            <p className="text-sm text-gray-400">Password must be at least 6 characters long</p>
 
             <div className="flex gap-3 mt-4">
               <button

@@ -21,6 +21,10 @@ export const signup = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
+    if(password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const tempUser  = await Code.findOne({ email });
     if (!tempUser) return res.status(400).json({ message: 'Something went wrong. Please try again.' });
@@ -241,9 +245,16 @@ export const resetPassword = async (req, res) => {
     return res.status(400).json({ error: "Invalid or expired code" });
   }
 
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
-    return res.status(400).json({ error: "Invalid new password" });
-  }
+if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+  return res.status(400).json({ error: "Password must be at least 6 characters long" });
+}
+
+const isSame = await bcrypt.compare(newPassword, user.password);
+if (isSame) {
+  return res.status(400).json({ error: "Please use a different password from your old one" });
+}
+
+
 
   user.password = await bcrypt.hash(newPassword, 10);
   user.resetCode = null;

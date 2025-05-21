@@ -67,17 +67,20 @@ const startTimer = () => {
 };
 
   // Update URL when step or email changes
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    params.set("step", currentStep);
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  params.set("step", currentStep);
 
-    // Add email to URL params if it exists
-    if (email) {
-      params.set("email", email);
-    }
+  // Add email only if currentStep > 1
+  if (currentStep > 1 && email) {
+    params.set("email", email);
+  } else {
+    params.delete("email");
+  }
 
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-  }, [currentStep, email, navigate, location.pathname]);
+  navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+}, [currentStep, email, navigate, location.pathname]);
+
 
   useEffect(() => {
     if (!email) return;
@@ -195,8 +198,8 @@ const startTimer = () => {
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters long");
       return;
     }
 
@@ -217,7 +220,7 @@ const startTimer = () => {
       // Clear reset password data from sessionStorage after success
       sessionStorage.removeItem("resetPasswordEmail");
     } catch (err) {
-      setError("Failed to reset password. Please try again.");
+      setError( err?.response?.data?.error ||"Failed to reset password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -596,7 +599,7 @@ const startTimer = () => {
                 </div>
 
                 <p className="text-gray-400 text-sm mt-1">
-                  Password must be at least 8 characters long.
+                  Password must be at least 6 characters long.
                 </p>
 
                 <div className="flex gap-3 mt-4">

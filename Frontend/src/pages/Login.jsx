@@ -31,7 +31,7 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-3 mb-2 bg-gray-900 px-4">
+    <div className="flex justify-center items-center min-h-screen mb-1 bg-gray-900 px-4">
       <div className="bg-gray-800 shadow-xl rounded-3xl rounded-b-lg p-8 w-full max-w-md mt-10 relative border border-gray-700">
         {/* Profile Icon - Positioned half outside the form */}
         <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
@@ -121,7 +121,7 @@ export const Login = () => {
 
           <Link to={'/forgot-password'}>
 
-          <p className="text-gray-400 cursor-pointer hover:underline inline w-fit">Forgot Password?</p>
+          <span className="text-gray-400 cursor-pointer hover:underline">Forgot Password?</span>
 
           </Link>
 
